@@ -18,17 +18,21 @@ def cli() -> None:
 @cli.command(name="fetch-filter")
 @click.option("--days", type=int, default=1, show_default=True, help="Lookback window in days")
 @click.option("--limit", type=int, default=200, show_default=True, help="Max arXiv results before filtering")
+@click.option("--no-limit", is_flag=True, default=False, help="Fetch all papers within the date range (ignores --limit)")
 @click.option("--model", type=str, default="llama3.2", show_default=True, help="Ollama model name")
 @click.option("--ollama-url", type=str, default="http://127.0.0.1:11434", show_default=True, help="Ollama base URL")
 @click.option("--out", type=click.Path(path_type=Path), default=None, help="Path to write JSONL")
 @click.option("--no-save", is_flag=True, default=False, help="Do not write output file")
-def fetch_and_filter(days: int, limit: int, model: str, ollama_url: str, out: Path | None, no_save: bool) -> None:
+def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_url: str, out: Path | None, no_save: bool) -> None:
 	"""
 	Fetch recent cs.AI papers, stream and print links as they arrive, then filter with
 	Ollama model, print and optionally save JSONL of matches.
 	"""
+	# Set limit to None if no-limit flag is used
+	effective_limit = None if no_limit else limit
+	
 	streamed = list()
-	for p in stream_recent_papers(days=days, limit=limit):
+	for p in stream_recent_papers(days=days, limit=effective_limit):
 		streamed.append(p)
 		click.echo(str(p.link))
 
@@ -36,6 +40,8 @@ def fetch_and_filter(days: int, limit: int, model: str, ollama_url: str, out: Pa
 		click.echo("No recent papers found in cs.AI for the given window.")
 		return
 
+	click.echo(f"Found {len(streamed)} recent papers in the last {days} days.\n")
+	
 	matches = filter_interpretability(streamed, model=model, url=ollama_url)
 
 	# Print matches succinctly
@@ -48,8 +54,9 @@ def fetch_and_filter(days: int, limit: int, model: str, ollama_url: str, out: Pa
 	# Save JSONL
 	if not no_save:
 		if out is None:
-			today = datetime.now(timezone.utc).date().isoformat()
-			out = Path("data") / f"{today}.jsonl"
+			now = datetime.now(timezone.utc)
+			timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
+			out = Path("data") / f"{timestamp}.jsonl"
 		out.parent.mkdir(parents=True, exist_ok=True)
 		with out.open("w", encoding="utf-8") as f:
 			for p in matches:
