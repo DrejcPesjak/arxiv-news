@@ -1,7 +1,0 @@
-* we need to fetch the whole date range (all article urls that fall withinn the "days"; then sort by datetime; and take the newest 
-* also make option to have no limit, just "fetch the whole day" (whatever the days limit is)
-* also when saving, add current time to json filename
-
-and if i ever do ctrl-c , still save current work , and add "T" as terminated to end of filename (before .jsonl extension)
-
-add string/regex filters like "if any of the strings in the list match [" (LLM", " LLM " " LLMs ", "Large Language Model" "interpretability", "VLM", "MLLM"] , just one is enough to match title or abstract -> then in that case, only then we forward the paper to our LLM (llama3.2)

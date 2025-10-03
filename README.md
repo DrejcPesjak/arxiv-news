@@ -16,6 +16,7 @@ Fetch daily cs.AI arXiv papers and filter for LLM/mechanistic interpretability v
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cd src
 ```
 
 ## Usage
@@ -23,6 +24,8 @@ Fetch the last day of cs.AI papers, filter with `llama3.2`, print matches, and s
 ```bash
 python -m arxiv_news.cli fetch-filter --days 1
 ```
+
+Note: For daily "news" runs, it's recommended to use `--days 2` due to arXiv's indexing delay.
 
 Options:
 - `--days INT` (default 1): lookback window in days
@@ -66,3 +69,5 @@ This ensures you get the complete picture of recent research activity rather tha
 - Ensure Ollama is running on `http://127.0.0.1:11434`.
 - You can adjust the prompt in `arxiv_news/ollama_filter.py`.
 - The tool fetches papers efficiently by downloading in batches and filtering client-side.
+- **API Delay**: arXiv's API has a 24-hour delay in reflecting new submissions.
+- **Real-time alternative**: For immediate updates, use RSS: https://rss.arxiv.org/rss/cs.AI
