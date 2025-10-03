@@ -57,6 +57,11 @@ Each matched paper is printed and written as JSON lines with fields: `title`, `l
 
 Output files are automatically timestamped (e.g., `data/2024-10-02_14-30-45.jsonl`) to avoid overwrites.
 
+## Keyword Pre-filtering
+- A simple, case-sensitive keyword pre-filter runs before LLM classification to reduce model calls.
+- Current static keywords: `{"LLM", " LLM ", " LLMs ", "Large Language Model", "interpretability", "VLM", "MLLM"}`
+- Only papers whose title or abstract contains any of these keywords are sent to the LLM.
+
 ## How it Works
 The tool now uses an improved fetching strategy:
 1. **Complete date range coverage**: Fetches all papers within the specified date window (not just the newest N)

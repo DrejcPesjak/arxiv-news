@@ -6,16 +6,15 @@
 - [x] **No-limit option**: Add `--no-limit` flag to fetch the whole day (whatever the days limit is) 
 - [x] **Timestamped filenames**: Add current time to JSON filename to avoid overwrites
 - [x] **Update README**: Document the new features and improved fetching strategy
+- [x] **Pre-filtering with string/regex**: Case-sensitive keyword pre-filter before LLM to reduce calls
+  - Keywords: `{"LLM", " LLM ", " LLMs ", "Large Language Model", "interpretability", "VLM", "MLLM"}`
+  - Only forward papers to LLM if title or abstract contains any keyword
 
 ## In Progress 🚧
 
 ## Pending ⏳
 
 - [ ] **Graceful interruption handling**: When user does Ctrl+C, still save current work and add "T" (terminated) to end of filename (before .jsonl extension)
-- [ ] **Pre-filtering with string/regex**: Add string/regex filters to reduce LLM calls
-  - If any of these strings match in title or abstract: `["LLM", " LLM ", " LLMs ", "Large Language Model", "interpretability", "VLM", "MLLM"]`
-  - Only forward papers to LLM (llama3.2) if they match these keywords first
-  - This will speed up processing and reduce API calls
 - [ ] **Simple user inputs/config**: Single place to set core run parameters
   - arXiv category (e.g., `cs.AI`)
   - keyword filters (list)
