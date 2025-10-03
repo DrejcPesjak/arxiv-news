@@ -9,21 +9,21 @@
 - [x] **Pre-filtering with string/regex**: Case-sensitive keyword pre-filter before LLM to reduce calls
   - Keywords: `{"LLM", " LLM ", " LLMs ", "Large Language Model", "interpretability", "VLM", "MLLM"}`
   - Only forward papers to LLM if title or abstract contains any keyword
+- [x] **Organize output subfolders**: Create `data/all`, `data/filtered`, `data/ranked`
+  - `all`: raw fetched papers for the day/range
+  - `filtered`: LLM-filtered interpretability matches
+  - `ranked`: final ranked selection artifacts/JSONL
 
 ## In Progress 🚧
 
 ## Pending ⏳
 
 - [ ] **Graceful interruption handling**: When user does Ctrl+C, still save current work and add "T" (terminated) to end of filename (before .jsonl extension)
-- [ ] **Simple user inputs/config**: Single place to set core run parameters
+- [ ] **Simple user inputs/config**: Single place (e.g., a YAML file) to set core run parameters
   - arXiv category (e.g., `cs.AI`)
   - keyword filters (list)
   - prompt filter (string template for LLM)
   - N final ranked outputs (int)
-- [ ] **Organize output subfolders**: Create `data/all`, `data/filtered`, `data/ranked`
-  - `all`: raw fetched papers for the day/range
-  - `filtered`: LLM-filtered interpretability matches
-  - `ranked`: final ranked selection artifacts/JSONL
 - [ ] **Ranking agent (tournament style)**: Rank papers via multi-round selection
   - Process in batches of 10; select top 2 from each batch
   - From the remaining, produce a final top-5 list overall

@@ -11,6 +11,13 @@ from .ollama_filter import classify_paper, filter_interpretability
 from .keyword_filter import filter_by_keywords
 
 
+def _write_lines(path: Path, lines) -> None:
+	path.parent.mkdir(parents=True, exist_ok=True)
+	with path.open("w", encoding="utf-8") as f:
+		for line in lines:
+			f.write(str(line) + "\n")
+
+
 @click.group()
 def cli() -> None:
 	pass
@@ -29,9 +36,18 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 	Fetch recent cs.AI papers, stream and print links as they arrive, then filter with
 	Ollama model, print and optionally save JSONL of matches.
 	"""
+	# Compute timestamps once for consistent filenames across outputs
+	now = datetime.now(timezone.utc)
+	date_str = now.date().isoformat()
+	timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
+	
 	# Set limit to None if no-limit flag is used
 	effective_limit = None if no_limit else limit
 	
+
+	# =========================
+	# STEP 1: STREAM RECENT PAPERS
+	# =========================
 	streamed = list()
 	for p in stream_recent_papers(days=days, limit=effective_limit):
 		streamed.append(p)
@@ -43,6 +59,17 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 
 	click.echo(f"Found {len(streamed)} recent papers in the last {days} days.")
 
+	# Save only links to data/all/<date>.txt
+	if not no_save:
+		all_dir = Path("data") / "all"
+		all_path = all_dir / f"{date_str}.txt"
+		_write_lines(all_path, (str(p.link) for p in streamed))
+		click.echo(f"Saved {len(streamed)} links to {all_path}")
+
+	
+	# =========================
+	# STEP 2: KEYWORD PRE-FILTER
+	# =========================
 	# Pre-filter by simple keyword matching to reduce LLM calls
 	keyword_matches = filter_by_keywords(streamed)
 
@@ -52,6 +79,10 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 	
 	click.echo(f"Keyword matches: {len(keyword_matches)} (pre-filtered)")
 
+
+	# =========================
+	# STEP 3: LLM INTERPRETABILITY FILTER
+	# =========================
 	matches = filter_interpretability(keyword_matches, model=model, url=ollama_url)
 
 	click.echo(f"Matches: {len(matches)} (filtered)")
@@ -66,8 +97,6 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 	# Save JSONL
 	if not no_save:
 		if out is None:
-			now = datetime.now(timezone.utc)
-			timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 			out = Path("data") / f"{timestamp}.jsonl"
 		out.parent.mkdir(parents=True, exist_ok=True)
 		with out.open("w", encoding="utf-8") as f:
