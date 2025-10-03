@@ -22,6 +22,7 @@ def stream_recent_papers(days: int = 1, limit: Optional[int] = 200) -> Generator
 	now = datetime.now(timezone.utc)
 	# Calculate the date 'days' ago, then set its time components to 00:00:00
 	cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
+	print(f"Cutoff: {cutoff}")
 
 	# Always fetch a large number to ensure we get all papers in date range
 	search = arxiv.Search(
@@ -31,46 +32,55 @@ def stream_recent_papers(days: int = 1, limit: Optional[int] = 200) -> Generator
 		max_results=10000,  # Large number to ensure we get all papers
 	)
 
-	client = arxiv.Client()
+	# Configure client with retries to mitigate transient empty page errors
+	client = arxiv.Client(num_retries=3, delay_seconds=2)
 	papers_in_range = []
-	
+
 	try:
 		for result in client.results(search):
-			print(result.published, result.entry_id)
+			# print(result.published, result.entry_id)
+			
 			if result.published is None:
 				print("No published date")
 				continue
-				
+			
 			# Apply date cutoff - collect all papers within the date range
 			if result.published >= cutoff:
-				primary_pdf = result.pdf_url if result.pdf_url else None
-				link = primary_pdf or result.entry_id
-				paper = Paper(
-					title=(result.title or "").strip(),
-					link=link,
-					abstract=(result.summary or "").strip(),
-					published=result.published,
-				)
-				papers_in_range.append(paper)
+				try:
+					primary_pdf = result.pdf_url if result.pdf_url else None
+					link = primary_pdf or result.entry_id
+					paper = Paper(
+						title=(result.title or "").strip(),
+						link=link,
+						abstract=(result.summary or "").strip(),
+						published=result.published,
+					)
+					papers_in_range.append(paper)
+
+				except Exception as e:
+					print(f"Error processing paper: {e}")
+					# Skip items that fail validation or parsing, continue with others
+					continue
 			else:
 				# Since results are sorted by submission date (newest first),
 				# we can break when we hit papers older than our cutoff
 				break
 			
-		# Sort by published date (newest first) to ensure proper ordering
-		papers_in_range.sort(key=lambda p: p.published, reverse=True)
-		
-		# Apply limit if specified - take the newest papers
-		if limit is not None:
-			papers_in_range = papers_in_range[:limit]
-			
-		# Yield the sorted and optionally limited papers
-		for paper in papers_in_range:
-			yield paper
-			
-	except Exception:
-		# Stop streaming on pagination/empty page or transient errors
-		return
+	except Exception as e:
+		print(f"Error fetching papers: {e}")
+		# arxiv library can raise UnexpectedEmptyPageError intermittently; keep collected items
+		pass
+
+	# Sort by published date (newest first) to ensure proper ordering
+	papers_in_range.sort(key=lambda p: p.published, reverse=True)
+
+	# Apply limit if specified - take the newest papers
+	if limit is not None:
+		papers_in_range = papers_in_range[:limit]
+
+	# Yield the sorted and optionally limited papers
+	for paper in papers_in_range:
+		yield paper
 
 
 def fetch_recent_papers(days: int = 1, limit: Optional[int] = 200) -> List[Paper]:

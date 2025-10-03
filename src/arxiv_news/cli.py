@@ -8,6 +8,7 @@ import click
 
 from .arxiv_fetcher import fetch_recent_papers, stream_recent_papers, fetch_paper_by_id
 from .ollama_filter import classify_paper, filter_interpretability
+from .keyword_filter import filter_by_keywords
 
 
 @click.group()
@@ -34,15 +35,26 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 	streamed = list()
 	for p in stream_recent_papers(days=days, limit=effective_limit):
 		streamed.append(p)
-		click.echo(str(p.link))
+		click.echo(f"{p.published} {p.link}")
 
 	if not streamed:
 		click.echo("No recent papers found in cs.AI for the given window.")
 		return
 
-	click.echo(f"Found {len(streamed)} recent papers in the last {days} days.\n")
+	click.echo(f"Found {len(streamed)} recent papers in the last {days} days.")
+
+	# Pre-filter by simple keyword matching to reduce LLM calls
+	keyword_matches = filter_by_keywords(streamed)
+
+	if not keyword_matches:
+		click.echo("No papers matched keyword pre-filter.")
+		return
 	
-	matches = filter_interpretability(streamed, model=model, url=ollama_url)
+	click.echo(f"Keyword matches: {len(keyword_matches)} (pre-filtered)")
+
+	matches = filter_interpretability(keyword_matches, model=model, url=ollama_url)
+
+	click.echo(f"Matches: {len(matches)} (filtered)")
 
 	# Print matches succinctly
 	for p in matches:
