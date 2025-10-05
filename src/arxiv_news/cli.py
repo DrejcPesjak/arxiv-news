@@ -6,9 +6,12 @@ from pathlib import Path
 
 import click
 
+from .models import Paper
+
 from .arxiv_fetcher import fetch_recent_papers, stream_recent_papers, fetch_paper_by_id
 from .ollama_filter import classify_paper, filter_interpretability
 from .keyword_filter import filter_by_keywords
+from .ranking_agent import tournament_rank_papers
 
 
 def _write_lines(path: Path, lines) -> None:
@@ -38,7 +41,6 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 	"""
 	# Compute timestamps once for consistent filenames across outputs
 	now = datetime.now(timezone.utc)
-	date_str = now.date().isoformat()
 	timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 	
 	# Set limit to None if no-limit flag is used
@@ -62,7 +64,7 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 	# Save only links to data/all/<date>.txt
 	if not no_save:
 		all_dir = Path("data") / "all"
-		all_path = all_dir / f"{date_str}.txt"
+		all_path = all_dir / f"{timestamp}.txt"
 		_write_lines(all_path, (str(p.link) for p in streamed))
 		click.echo(f"Saved {len(streamed)} links to {all_path}")
 
@@ -94,7 +96,7 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 		click.echo("  " + p.abstract)
 		click.echo("")
 
-	# Save JSONL
+	# Save JSONL (all matches)
 	if not no_save:
 		if out is None:
 			out = Path("data") / f"{timestamp}.jsonl"
@@ -103,6 +105,28 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 			for p in matches:
 				f.write(json.dumps(p.model_dump(), default=str) + "\n")
 		click.echo(f"Saved {len(matches)} matches to {out}")
+
+	
+	# =========================
+	# STEP 4: TOURNAMENT RANKING
+	# =========================
+
+	# # test code to load data/filtered/2025-10-03_07-05-53.jsonl
+	# matches = [Paper.model_validate_json(line) for line in Path("data/filtered/2025-10-03_07-05-53.jsonl").read_text().splitlines()]
+	# click.echo(f"Loaded {len(matches)} matches")
+	
+	ranking_result = tournament_rank_papers(matches, model=model, url=ollama_url)
+	click.echo("Final ranking result:")
+	click.echo(ranking_result)
+
+	# Save ranking result to data/ranked/
+	if not no_save:
+		ranked_dir = Path("data") / "ranked"
+		ranked_path = ranked_dir / f"{timestamp}.md"
+		ranked_path.parent.mkdir(parents=True, exist_ok=True)
+		with ranked_path.open("w", encoding="utf-8") as f:
+			f.write(ranking_result)
+		click.echo(f"Saved ranking result to {ranked_path}")
 
 
 @cli.command(name="classify-id")

@@ -13,6 +13,10 @@
   - `all`: raw fetched papers for the day/range
   - `filtered`: LLM-filtered interpretability matches
   - `ranked`: final ranked selection artifacts/JSONL
+- [x] **Ranking agent (tournament style)**: Rank papers via multi-round selection
+  - Process in batches of 10; select top 2 from each batch
+  - From the remaining, produce a final top-5 list overall
+  - Includes filtering of `<think>` blocks from reasoning LLM responses
 
 ## In Progress 🚧
 
@@ -24,9 +28,6 @@
   - keyword filters (list)
   - prompt filter (string template for LLM)
   - N final ranked outputs (int)
-- [ ] **Ranking agent (tournament style)**: Rank papers via multi-round selection
-  - Process in batches of 10; select top 2 from each batch
-  - From the remaining, produce a final top-5 list overall
 
 ## Future Enhancements 💡
 
@@ -34,6 +35,9 @@
 - [ ] **Parallel processing**: Process multiple papers simultaneously with LLM
 - [ ] **Caching**: Cache LLM responses to avoid re-processing same papers
 - [ ] **Export formats**: Support additional output formats (CSV, markdown)
+- [ ] **Author-based prioritization**: Extract authors and their organizations from papers
+  - Give higher priority to established prominent big players in the field
+  - Use author/institution reputation as a ranking signal
 
 ## Notes 📝
 
