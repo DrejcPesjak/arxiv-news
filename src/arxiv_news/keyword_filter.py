@@ -3,24 +3,13 @@ from __future__ import annotations
 from typing import Iterable, List
 
 from .models import Paper
-
-
-# Static keyword list for simple pre-filtering. Case-insensitive substring match.
-_KEYWORDS: List[str] = [
-	"LLM",
-	" LLM ",
-	" LLMs ",
-	"Large Language Model",
-	"interpretability",
-	"VLM",
-	"MLLM",
-]
+from .config import KEYWORD_LIST
 
 
 def _text_matches_keywords(text: str) -> bool:
 	if not text:
 		return False
-	for kw in _KEYWORDS:
+	for kw in KEYWORD_LIST:
 		if kw in text:
 			return True
 	return False

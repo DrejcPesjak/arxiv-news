@@ -5,7 +5,6 @@
 - [x] **Fetch whole date range**: Implement fetching all articles that fall within the "days" parameter, then sort by datetime and take the newest
 - [x] **No-limit option**: Add `--no-limit` flag to fetch the whole day (whatever the days limit is) 
 - [x] **Timestamped filenames**: Add current time to JSON filename to avoid overwrites
-- [x] **Update README**: Document the new features and improved fetching strategy
 - [x] **Pre-filtering with string/regex**: Case-sensitive keyword pre-filter before LLM to reduce calls
   - Keywords: `{"LLM", " LLM ", " LLMs ", "Large Language Model", "interpretability", "VLM", "MLLM"}`
   - Only forward papers to LLM if title or abstract contains any keyword
@@ -17,17 +16,21 @@
   - Process in batches of 10; select top 2 from each batch
   - From the remaining, produce a final top-5 list overall
   - Includes filtering of `<think>` blocks from reasoning LLM responses
+- [x] **Simple user inputs/config**: Single place (e.g., a YAML file) to set core run parameters
+  - arXiv category (e.g., `cs.AI`)
+  - keyword filters (list)
+  - prompt filter (string template for LLM)
+  - N final ranked outputs (int)
 
 ## In Progress 🚧
 
 ## Pending ⏳
 
+- [ ] Arxiv fetcher remove static category and add config.yaml for it
+- [ ] Config.yaml add no-limit option (check if currently cli no-limit option is working)
+- [ ] In cli.py should we only have data paths from config.yaml? and move all other variables to relevant files?
+
 - [ ] **Graceful interruption handling**: When user does Ctrl+C, still save current work and add "T" (terminated) to end of filename (before .jsonl extension)
-- [ ] **Simple user inputs/config**: Single place (e.g., a YAML file) to set core run parameters
-  - arXiv category (e.g., `cs.AI`)
-  - keyword filters (list)
-  - prompt filter (string template for LLM)
-  - N final ranked outputs (int)
 
 ## Future Enhancements 💡
 

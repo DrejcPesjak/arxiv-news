@@ -12,6 +12,15 @@ from .arxiv_fetcher import fetch_recent_papers, stream_recent_papers, fetch_pape
 from .ollama_filter import classify_paper, filter_interpretability
 from .keyword_filter import filter_by_keywords
 from .ranking_agent import tournament_rank_papers
+from .config import (
+	ARXIV_DEFAULT_DAYS,
+	ARXIV_DEFAULT_LIMIT,
+	CLASSIFICATION_MODEL,
+	OLLAMA_URL,
+	OUTPUT_ALL_DIR,
+	OUTPUT_FILTERED_DIR,
+	OUTPUT_RANKED_DIR,
+)
 
 
 def _write_lines(path: Path, lines) -> None:
@@ -27,11 +36,11 @@ def cli() -> None:
 
 
 @cli.command(name="fetch-filter")
-@click.option("--days", type=int, default=1, show_default=True, help="Lookback window in days")
-@click.option("--limit", type=int, default=200, show_default=True, help="Max arXiv results before filtering")
+@click.option("--days", type=int, default=ARXIV_DEFAULT_DAYS, show_default=True, help="Lookback window in days")
+@click.option("--limit", type=int, default=ARXIV_DEFAULT_LIMIT, show_default=True, help="Max arXiv results before filtering")
 @click.option("--no-limit", is_flag=True, default=False, help="Fetch all papers within the date range (ignores --limit)")
-@click.option("--model", type=str, default="llama3.2", show_default=True, help="Ollama model name")
-@click.option("--ollama-url", type=str, default="http://127.0.0.1:11434", show_default=True, help="Ollama base URL")
+@click.option("--model", type=str, default=CLASSIFICATION_MODEL, show_default=True, help="Ollama model name")
+@click.option("--ollama-url", type=str, default=OLLAMA_URL, show_default=True, help="Ollama base URL")
 @click.option("--out", type=click.Path(path_type=Path), default=None, help="Path to write JSONL")
 @click.option("--no-save", is_flag=True, default=False, help="Do not write output file")
 def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_url: str, out: Path | None, no_save: bool) -> None:
@@ -63,8 +72,7 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 
 	# Save only links to data/all/<date>.txt
 	if not no_save:
-		all_dir = Path("data") / "all"
-		all_path = all_dir / f"{timestamp}.txt"
+		all_path = OUTPUT_ALL_DIR / f"{timestamp}.txt"
 		_write_lines(all_path, (str(p.link) for p in streamed))
 		click.echo(f"Saved {len(streamed)} links to {all_path}")
 
@@ -99,7 +107,7 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 	# Save JSONL (all matches)
 	if not no_save:
 		if out is None:
-			out = Path("data") / f"{timestamp}.jsonl"
+			out = OUTPUT_FILTERED_DIR / f"{timestamp}.jsonl"
 		out.parent.mkdir(parents=True, exist_ok=True)
 		with out.open("w", encoding="utf-8") as f:
 			for p in matches:
@@ -121,8 +129,7 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 
 	# Save ranking result to data/ranked/
 	if not no_save:
-		ranked_dir = Path("data") / "ranked"
-		ranked_path = ranked_dir / f"{timestamp}.md"
+		ranked_path = OUTPUT_RANKED_DIR / f"{timestamp}.md"
 		ranked_path.parent.mkdir(parents=True, exist_ok=True)
 		with ranked_path.open("w", encoding="utf-8") as f:
 			f.write(ranking_result)
@@ -131,8 +138,8 @@ def fetch_and_filter(days: int, limit: int, no_limit: bool, model: str, ollama_u
 
 @cli.command(name="classify-id")
 @click.argument("arxiv_id", type=str)
-@click.option("--model", type=str, default="llama3.2", show_default=True, help="Ollama model name")
-@click.option("--ollama-url", type=str, default="http://127.0.0.1:11434", show_default=True, help="Ollama base URL")
+@click.option("--model", type=str, default=CLASSIFICATION_MODEL, show_default=True, help="Ollama model name")
+@click.option("--ollama-url", type=str, default=OLLAMA_URL, show_default=True, help="Ollama base URL")
 def classify_id(arxiv_id: str, model: str, ollama_url: str) -> None:
 	"""
 	Fetch a single arXiv paper by ID and run the interpretability classifier.

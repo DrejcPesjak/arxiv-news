@@ -1,3 +1,7 @@
+src/data/all/
+src/data/filtered/
+src/data/ranked/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

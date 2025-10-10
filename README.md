@@ -25,6 +25,27 @@ pip install -r requirements.txt
 cd src
 ```
 
+## Configuration
+
+All project settings are centralized in `config.yaml` at the project root. You can customize:
+
+- **Research focus**: Update `ranking.research_focus` to match your research area
+- **Models**: Set default models for classification and ranking
+- **Prompts**: Customize classification and ranking prompts
+- **Keywords**: Modify the pre-filter keyword list
+- **Tournament settings**: Adjust top-k values for ranking stages
+- **Output paths**: Change where files are saved
+
+Example config section:
+```yaml
+ranking:
+  model: "qwen3"
+  research_focus: "my PhD LLM interpretability research"
+  tournament_topk: [2, 5]  # [first_stage_top_k, final_stage_top_k]
+```
+
+CLI flags override config defaults when specified.
+
 ## Usage
 
 ### Fetch, Filter, and Rank Papers

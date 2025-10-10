@@ -7,23 +7,7 @@ import click
 import requests
 
 from .models import Paper
-
-
-DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434"
-
-# Tournament configuration: [first_stage_top_k, final_stage_top_k]
-TOURNAMENT_TOPK = [2, 5]
-
-# PROMPT = """You are a research paper ranking expert. Given a list of papers about LLM interpretability, 
-# select the {num} most relevant and interesting articles.
-# Focus on papers that are most relevant to LLM interpretability PhD research. 
-# Return your selection as plain markdown text with the paper titles and brief reasoning for each choice."""
-
-PROMPT = """From the following papers, select exactly top {num} most relevant and important for my phd LLM interpretability research. 
-Return your selection as plain markdown text with the paper titles and brief reasoning/summary for each choice. 
-Do not include any other text. Also do not rank them (use unordered list). 
-The final answer should be exactly {num} paragraphs.
-Think for maximum of 60 seconds before selecting the papers."""
+from .config import OLLAMA_URL, RANKING_MODEL, RANKING_TOURNAMENT_TOPK, get_ranking_prompt
 
 
 def _filter_think_blocks(text: str) -> str:
@@ -35,7 +19,7 @@ def _filter_think_blocks(text: str) -> str:
 	return filtered.strip()
 
 
-def _call_ollama_generate(model: str, prompt: str, url: str = DEFAULT_OLLAMA_URL) -> str:
+def _call_ollama_generate(model: str, prompt: str, url: str = OLLAMA_URL) -> str:
 	"""Call Ollama API to generate response."""
 	resp = requests.post(
 		f"{url}/api/generate",
@@ -69,12 +53,12 @@ def _create_batches(papers: List[Paper], batch_size: int = 10) -> List[List[Pape
 	return batches
 
 
-def _rank_batch(batch_string: str, num: int, model: str = "qwen3", url: str = "http://127.0.0.1:11434") -> str:
+def _rank_batch(batch_string: str, num: int, model: str = RANKING_MODEL, url: str = OLLAMA_URL) -> str:
 	"""
 	Rank papers using LLM and return plain text response.
 	"""	
 	# Format prompt with num parameter
-	prompt = PROMPT.format(num=num)
+	prompt = get_ranking_prompt(num)
 	# print(prompt)
 	user_prompt = f"{prompt}\n\nPapers:\n{batch_string}"
 
@@ -90,7 +74,7 @@ def _rank_batch(batch_string: str, num: int, model: str = "qwen3", url: str = "h
 		return ""
 
 
-def tournament_rank_papers(papers: List[Paper], model: str = "qwen3", url: str = "http://127.0.0.1:11434") -> str:
+def tournament_rank_papers(papers: List[Paper], model: str = RANKING_MODEL, url: str = OLLAMA_URL) -> str:
 	"""
 	Two-level tournament ranking using configurable top-k values.
 	First stage: rank batches, get text responses
@@ -101,7 +85,7 @@ def tournament_rank_papers(papers: List[Paper], model: str = "qwen3", url: str =
 	if not papers:
 		return "No papers to rank."
 	
-	first_top_k, final_top_k = TOURNAMENT_TOPK
+	first_top_k, final_top_k = RANKING_TOURNAMENT_TOPK
 	
 	
 	click.echo(f"Starting tournament ranking with {len(papers)} papers...")

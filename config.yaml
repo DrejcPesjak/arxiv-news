@@ -1,0 +1,60 @@
+# Configuration for arxiv-news pipeline
+
+# ArXiv fetching configuration
+arxiv:
+  category: "cs.AI"
+  default_days: 1
+  default_limit: 200
+
+# Ollama configuration
+ollama:
+  url: "http://127.0.0.1:11434"
+
+# Keyword pre-filtering (case-sensitive substring match)
+keyword_filter:
+  keywords:
+    - "LLM"
+    - " LLM "
+    - " LLMs "
+    - "Large Language Model"
+    - "interpretability"
+    - "VLM"
+    - "MLLM"
+
+# LLM classification for interpretability
+classification:
+  model: "llama3.2"
+  prompt: |
+    You are a precise research classifier. Given a paper title and abstract, 
+    answer ONLY with strict JSON: {{"reason": string, "is_interpretability": boolean}}. 
+    Mark is_interpretability=true if and only if the paper is about Large Language Models (LLMs) and their interpretability.
+    If not, mark is_interpretability=false. But first, give me three sentence reason for your answer under the reason field.
+
+# Tournament-style ranking configuration
+ranking:
+  model: "qwen3"
+  
+  # Tournament configuration: [first_stage_top_k, final_stage_top_k]
+  tournament_topk: [2, 5]
+  
+  # Research focus for prompts
+  research_focus: "my PhD LLM interpretability research"
+  
+  # Think time for reasoning models (seconds)
+  think_time: 60
+  
+  # Prompt template (uses {num} placeholder filled at runtime)
+  prompt_template: |
+    From the following papers, select exactly top {num} most relevant and important for {research_focus}. 
+    Return your selection as plain markdown text with the paper titles and brief reasoning/summary for each choice. 
+    Do not include any other text. Also do not rank them (use unordered list). 
+    The final answer should be exactly {num} paragraphs.
+    Think for maximum of {think_time} seconds before selecting the papers.
+
+# Output directories
+output:
+  base_dir: "data"
+  all_dir: "data/all"
+  filtered_dir: "data/filtered"
+  ranked_dir: "data/ranked"
+
