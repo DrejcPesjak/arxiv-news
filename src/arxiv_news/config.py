@@ -31,6 +31,7 @@ _CONFIG = _load_config()
 ARXIV_CATEGORY = _CONFIG["arxiv"]["category"]
 ARXIV_DEFAULT_DAYS = _CONFIG["arxiv"]["default_days"]
 ARXIV_DEFAULT_LIMIT = _CONFIG["arxiv"]["default_limit"]
+ARXIV_DEFAULT_NO_LIMIT = _CONFIG["arxiv"]["default_no_limit"]
 
 
 # ============================================================================
@@ -91,7 +92,7 @@ def get_ranking_prompt(num: int) -> str:
 
 def reload_config() -> None:
 	"""Reload configuration from disk (useful for testing/development)."""
-	global _CONFIG, ARXIV_CATEGORY, ARXIV_DEFAULT_DAYS, ARXIV_DEFAULT_LIMIT
+	global _CONFIG, ARXIV_CATEGORY, ARXIV_DEFAULT_DAYS, ARXIV_DEFAULT_LIMIT, ARXIV_DEFAULT_NO_LIMIT
 	global OLLAMA_URL, KEYWORD_LIST, CLASSIFICATION_MODEL, CLASSIFICATION_PROMPT
 	global RANKING_MODEL, RANKING_TOURNAMENT_TOPK, RANKING_PROMPT_TEMPLATE
 	global OUTPUT_BASE_DIR, OUTPUT_ALL_DIR, OUTPUT_FILTERED_DIR, OUTPUT_RANKED_DIR
@@ -101,6 +102,7 @@ def reload_config() -> None:
 	ARXIV_CATEGORY = _CONFIG["arxiv"]["category"]
 	ARXIV_DEFAULT_DAYS = _CONFIG["arxiv"]["default_days"]
 	ARXIV_DEFAULT_LIMIT = _CONFIG["arxiv"]["default_limit"]
+	ARXIV_DEFAULT_NO_LIMIT = _CONFIG["arxiv"]["default_no_limit"]
 	
 	OLLAMA_URL = _CONFIG["ollama"]["url"]
 	

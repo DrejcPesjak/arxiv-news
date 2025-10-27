@@ -21,14 +21,15 @@
   - keyword filters (list)
   - prompt filter (string template for LLM)
   - N final ranked outputs (int)
+- [x] Arxiv fetcher remove static category and add config.yaml for it
+- [x] Config.yaml add no-limit option (check if currently cli no-limit option is working)
 
 ## In Progress 🚧
 
 ## Pending ⏳
 
-- [ ] Arxiv fetcher remove static category and add config.yaml for it
-- [ ] Config.yaml add no-limit option (check if currently cli no-limit option is working)
-- [ ] In cli.py should we only have data paths from config.yaml? and move all other variables to relevant files?
+- [ ] ~~In cli.py should we only have data paths from config.yaml? and move all other variables to relevant files?~~
+- [ ] All options from config.yaml should be available as cli flags (ranking model, ...). Remove import config from every .py file except for cli.py.
 
 - [ ] **Graceful interruption handling**: When user does Ctrl+C, still save current work and add "T" (terminated) to end of filename (before .jsonl extension)
 

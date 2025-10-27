@@ -78,6 +78,54 @@ A VLM agent that runs experiments (code) - like text2image, dataset_exemplars, e
 Can interpret any image model, ResNet, DINO, etc.
 
 
+---
+### Steering Evaluation-Aware Language Models To Act Like They Are Deployed
+
+**Link:** http://arxiv.org/pdf/2510.20487v1
+
+**Core claim:**
+After finetuning (to detect evaluation process), prompt cannot reverse/annul this behaviour, only activation steering can.
+
+> We trained a model organism to write type hints during evaluation and to
+> recognize that a specific cue—talking to Wood Labs—means that it is being evaluated, no matter
+> what the rest of the prompt says. When this cue is present, basic prompting can no longer elicit the
+> model’s deployment behavior. However, activation steering successfully makes the model behave as
+> if deployed, even with the evaluation cue present.
+
+
+---
+### PruneHal: Reducing Hallucinations in Multi-modal Large Language Models through Adaptive KV Cache Pruning
+
+**Link:** https://arxiv.org/pdf/2510.19183v1
+
+**Core claim:**
+Amplifying visual attention in a MLLM can reduce hallucinations on visual tasks.
+
+
+---
+### That's Deprecated! Understanding, Detecting, and Steering Knowledge Conflicts in Language Models for Code Generation
+
+**Link:** http://arxiv.org/pdf/2510.19116v1
+
+**Core claim:**
+Knowledge conflicts (conflict between prompt and model's knowledge) are encoded in large enough models.
+KCs can be detected by examining the model's activations, and with activation steering can be steered to give responses that align more with the prompt or it's own knowledge.
+
+
+
+
+---
+# TODO (pending)
+
+**Links:**
+ - https://arxiv.org/pdf/2510.18184v1
+ - https://arxiv.org/pdf/2510.18470v2
+ - https://arxiv.org/pdf/2510.19875v1
+ - https://arxiv.org/pdf/2510.18871v1
+ - https://arxiv.org/pdf/2510.17941v1
+
+
+---
 
 # Other papers
 

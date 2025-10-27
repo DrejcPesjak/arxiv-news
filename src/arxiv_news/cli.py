@@ -15,6 +15,7 @@ from .ranking_agent import tournament_rank_papers
 from .config import (
 	ARXIV_DEFAULT_DAYS,
 	ARXIV_DEFAULT_LIMIT,
+	ARXIV_DEFAULT_NO_LIMIT,
 	CLASSIFICATION_MODEL,
 	OLLAMA_URL,
 	OUTPUT_ALL_DIR,
@@ -38,7 +39,7 @@ def cli() -> None:
 @cli.command(name="fetch-filter")
 @click.option("--days", type=int, default=ARXIV_DEFAULT_DAYS, show_default=True, help="Lookback window in days")
 @click.option("--limit", type=int, default=ARXIV_DEFAULT_LIMIT, show_default=True, help="Max arXiv results before filtering")
-@click.option("--no-limit", is_flag=True, default=False, help="Fetch all papers within the date range (ignores --limit)")
+@click.option("--no-limit", is_flag=True, default=ARXIV_DEFAULT_NO_LIMIT, help="Fetch all papers within the date range (ignores --limit)")
 @click.option("--model", type=str, default=CLASSIFICATION_MODEL, show_default=True, help="Ollama model name")
 @click.option("--ollama-url", type=str, default=OLLAMA_URL, show_default=True, help="Ollama base URL")
 @click.option("--out", type=click.Path(path_type=Path), default=None, help="Path to write JSONL")

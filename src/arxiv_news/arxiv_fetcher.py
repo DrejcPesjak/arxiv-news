@@ -6,15 +6,13 @@ from typing import Generator, Iterable, List, Optional
 import arxiv
 
 from .models import Paper
+from .config import ARXIV_CATEGORY
 
-
-CATEGORY = "cs.AI"
-
-def stream_recent_papers(days: int = 1, limit: Optional[int] = 200) -> Generator[Paper, None, None]:
+def stream_recent_papers(days: int = 1, limit: Optional[int] = None) -> Generator[Paper, None, None]:
 	"""
-	Yield recent papers in cs.AI as they are fetched. Always fetches a large number
-	of results to ensure we get all papers within the date range, then applies 
-	client-side date cutoff and sorting.
+	Yield recent papers in the configured arXiv category as they are fetched. Fetches ALL results from the API
+	to ensure we get all papers within the date range, then applies client-side date 
+	cutoff and sorting.
 	
 	If limit is None, returns all papers within the date range.
 	If limit is specified, returns the newest N papers within the date range.
@@ -23,22 +21,34 @@ def stream_recent_papers(days: int = 1, limit: Optional[int] = 200) -> Generator
 	# Calculate the date 'days' ago, then set its time components to 00:00:00
 	cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
 	print(f"Cutoff: {cutoff}")
+	print(f"Limit: {limit if limit is not None else 'No limit (fetching all papers in date range)'}")
 
-	# Always fetch a large number to ensure we get all papers in date range
+	# Set max_results to None to fetch ALL results from the API
+	# The arxiv library will handle pagination automatically
 	search = arxiv.Search(
-		query=f"cat:{CATEGORY}",
+		query=f"cat:{ARXIV_CATEGORY}",
 		sort_by=arxiv.SortCriterion.SubmittedDate,
 		sort_order=arxiv.SortOrder.Descending,  # Newest first
-		max_results=10000,  # Large number to ensure we get all papers
+		max_results=None,  # Fetch ALL results - library handles pagination
 	)
 
-	# Configure client with retries to mitigate transient empty page errors
-	client = arxiv.Client(num_retries=3, delay_seconds=2)
+	# Configure client with more aggressive settings to handle large result sets
+	# page_size controls how many results per API call (max is 2000 for arXiv API)
+	client = arxiv.Client(
+		num_retries=5, 
+		delay_seconds=3,
+		page_size=2000  # Use maximum page size to minimize API calls
+	)
 	papers_in_range = []
+	
+	print(f"Starting to fetch papers from arXiv API...")
+	fetched_count = 0
 
 	try:
 		for result in client.results(search):
-			# print(result.published, result.entry_id)
+			fetched_count += 1
+			if fetched_count % 100 == 0:
+				print(f"Fetched {fetched_count} papers so far...")
 			
 			if result.published is None:
 				print("No published date")
@@ -64,12 +74,15 @@ def stream_recent_papers(days: int = 1, limit: Optional[int] = 200) -> Generator
 			else:
 				# Since results are sorted by submission date (newest first),
 				# we can break when we hit papers older than our cutoff
+				print(f"Reached papers older than cutoff after fetching {fetched_count} total papers")
 				break
 			
 	except Exception as e:
 		print(f"Error fetching papers: {e}")
 		# arxiv library can raise UnexpectedEmptyPageError intermittently; keep collected items
 		pass
+	
+	print(f"Total papers within date range: {len(papers_in_range)}")
 
 	# Sort by published date (newest first) to ensure proper ordering
 	papers_in_range.sort(key=lambda p: p.published, reverse=True)
@@ -83,9 +96,12 @@ def stream_recent_papers(days: int = 1, limit: Optional[int] = 200) -> Generator
 		yield paper
 
 
-def fetch_recent_papers(days: int = 1, limit: Optional[int] = 200) -> List[Paper]:
+def fetch_recent_papers(days: int = 1, limit: Optional[int] = None) -> List[Paper]:
 	"""
 	Collect recent papers into a list. See `stream_recent_papers` for streaming.
+	
+	If limit is None, returns all papers within the date range.
+	If limit is specified, returns the newest N papers within the date range.
 	"""
 	return list(stream_recent_papers(days=days, limit=limit))
 

@@ -5,6 +5,7 @@ arxiv:
   category: "cs.AI"
   default_days: 1
   default_limit: 1000
+  default_no_limit: false
 
 # Ollama configuration
 ollama:
