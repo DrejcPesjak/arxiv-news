@@ -1,4 +1,7 @@
-# LLM interpretability papers
+# LLM Interpretability Paper Digest
+**Author:** Drejc Pesjak  
+**Topic:** LLM Mechanistic Interpretability  
+**Last update:** Oct 27, 2025 
 
 ### Open Problems in Mechanistic Interpretability
 

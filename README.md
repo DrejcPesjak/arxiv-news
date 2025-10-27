@@ -2,6 +2,18 @@
 
 Fetch daily cs.AI arXiv papers, filter for LLM/mechanistic interpretability via local Ollama, and rank results using tournament-style selection.
 
+## How it Works
+The tool provides a complete research paper discovery pipeline:
+
+1. **Complete date range coverage**: Fetches all papers within the specified date window (not just the newest N)
+2. **Client-side sorting**: Downloads a large batch, then sorts by publication date and applies limits
+3. **Flexible limiting**: Use `--no-limit` to get all papers from the date range, or `--limit N` for the newest N papers
+4. **Keyword pre-filtering**: Fast pre-filter reduces unnecessary LLM calls
+5. **LLM filtering**: Uses local Ollama models to identify relevant interpretability papers
+6. **Tournament ranking**: Automatically ranks filtered papers in batches to select the most important ones
+
+This ensures you get the complete picture of recent research activity, filtered and ranked by relevance.
+
 ## Prerequisites
 - Python 3.10+
 - [Ollama](https://ollama.com/) installed and running (`ollama serve`)
@@ -115,18 +127,6 @@ Output files are automatically timestamped (e.g., `2025-10-02_14-30-45.jsonl`) t
 - A simple, case-sensitive keyword pre-filter runs before LLM classification to reduce model calls.
 - Current static keywords: `{"LLM", " LLM ", " LLMs ", "Large Language Model", "interpretability", "VLM", "MLLM"}`
 - Only papers whose title or abstract contains any of these keywords are sent to the LLM.
-
-## How it Works
-The tool provides a complete research paper discovery pipeline:
-
-1. **Complete date range coverage**: Fetches all papers within the specified date window (not just the newest N)
-2. **Client-side sorting**: Downloads a large batch, then sorts by publication date and applies limits
-3. **Flexible limiting**: Use `--no-limit` to get all papers from the date range, or `--limit N` for the newest N papers
-4. **Keyword pre-filtering**: Fast pre-filter reduces unnecessary LLM calls
-5. **LLM filtering**: Uses local Ollama models to identify relevant interpretability papers
-6. **Tournament ranking**: Automatically ranks filtered papers in batches to select the most important ones
-
-This ensures you get the complete picture of recent research activity, filtered and ranked by relevance.
 
 ## Notes
 - Ensure Ollama is running on `http://127.0.0.1:11434`.
