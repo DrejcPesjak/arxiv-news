@@ -22,8 +22,8 @@
 **Core claim:**  
 How each layer of LLM is used for different tasks using layer pruning. Shallow layers for retrieval, deep layers for reasoning.
 
-> Results show that layer contributions are highly uneven: shallow layers dominate likelihood
-> and retrieval, while mid-to-deep layers are essential for reasoning and generation. Taken together, depth usage
+> Results show that layer contributions are highly uneven: shallow layers dominate likelihood  \
+> and retrieval, while mid-to-deep layers are essential for reasoning and generation. Taken together, depth usage  \
 > is inherently task-dependent, highly metric-sensitive, and strongly model-specific. 
 
 ---
@@ -67,8 +67,8 @@ Apply PCA on hidden-state vectors, a cluster for each emotion clearly visible. C
 **Link:** https://arxiv.org/pdf/2510.12229v1
 
 **Core claim:**  
-They analyze the Knobe effect, a bias for intentional action vs. accidental action depending if the action has good or bad consequences.
-Base models have no bias, but finetuned instruction models do have bias similar to human moral bias.
+They analyze the Knobe effect, a bias for intentional action vs. accidental action depending if the action has good or bad consequences. \
+Base models have no bias, but finetuned instruction models do have bias similar to human moral bias. \
 With layer-patching, they have effectively suppressed the bias.
 
 ---
@@ -89,10 +89,10 @@ Can interpret any image model, ResNet, DINO, etc.
 **Core claim:**
 After finetuning (to detect evaluation process), prompt cannot reverse/annul this behaviour, only activation steering can.
 
-> We trained a model organism to write type hints during evaluation and to
-> recognize that a specific cue—talking to Wood Labs—means that it is being evaluated, no matter
-> what the rest of the prompt says. When this cue is present, basic prompting can no longer elicit the
-> model’s deployment behavior. However, activation steering successfully makes the model behave as
+> We trained a model organism to write type hints during evaluation and to \
+> recognize that a specific cue—talking to Wood Labs—means that it is being evaluated, no matter \
+> what the rest of the prompt says. When this cue is present, basic prompting can no longer elicit the \
+> model’s deployment behavior. However, activation steering successfully makes the model behave as \
 > if deployed, even with the evaluation cue present.
 
 
@@ -111,7 +111,7 @@ Amplifying visual attention in a MLLM can reduce hallucinations on visual tasks.
 **Link:** http://arxiv.org/pdf/2510.19116v1
 
 **Core claim:**
-Knowledge conflicts (conflict between prompt and model's knowledge) are encoded in large enough models.
+Knowledge conflicts (conflict between prompt and model's knowledge) are encoded in large enough models. \
 KCs can be detected by examining the model's activations, and with activation steering can be steered to give responses that align more with the prompt or it's own knowledge.
 
 
@@ -143,6 +143,6 @@ KCs can be detected by examining the model's activations, and with activation st
 **Link:** https://arxiv.org/pdf/2409.04109
 
 **Core claim:**  
-LLMs create more novel ideas than expert human researchers.
-LLMs produce less feasible ideas than researchers.
+LLMs create more novel ideas than expert human researchers. \
+LLMs produce less feasible ideas than researchers. \
 LLMs lack diversity in their ideas, and cannot reliably self-evaluate.
